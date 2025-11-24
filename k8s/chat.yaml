@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-chat
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-chat
+  template:
+    metadata:
+      labels:
+        app: backend-chat
+    spec:
+      containers:
+        - name: backend-chat
+          image: swayamjain/chat-app-chat:latest
+          ports:
+            - containerPort: 5002
+          env:
+            - name: PORT
+              value: "5002"
+            - name: MONGO_URI
+              value: "mongodb://admin:password123@mongodb:27017/chatapp?authSource=admin"
+            - name: JWT_SECRET
+              value: "god-is-good-god-is-great"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:5000/api/v1"
+            - name: CLOUDINARY_CLOUD_NAME
+              value: "dnrfzgcrp"
+            - name: CLOUDINARY_API_KEY
+              value: "659381931425234"
+            - name: CLOUDINARY_API_SECRET
+              value: "ekW9f7cKaOJuPD7KjpamIkiSMeQ"
