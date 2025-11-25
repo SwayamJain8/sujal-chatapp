@@ -1,18 +1,18 @@
 services:
   # MongoDB Database
-  # mongodb:
-  #   image: mongo:7-jammy
-  #   container_name: chat-mongodb
-  #   restart: unless-stopped
-  #   ports:
-  #     - "27017:27017"
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: admin
-  #     MONGO_INITDB_ROOT_PASSWORD: password123
-  #   volumes:
-  #     - mongodb_data:/data/db
-  #   networks:
-  #     - chat-network
+  mongodb:
+    image: mongo:7-jammy
+    container_name: chat-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - chat-network
 
   # Redis Cache
   redis:
@@ -32,8 +32,8 @@ services:
     container_name: chat-rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI port
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: password123
@@ -41,9 +41,10 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
     networks:
       - chat-network
 
@@ -65,8 +66,8 @@ services:
       - RABBITMQ_PASSWORD=password123
       - JWT_SECRET=god-is-good-god-is-great
     depends_on:
-      # mongodb:
-      #   condition: service_started
+      mongodb:
+        condition: service_started
       redis:
         condition: service_started
       rabbitmq:
@@ -119,8 +120,13 @@ services:
       - CLOUDINARY_CLOUD_NAME=dnrfzgcrp
       - CLOUDINARY_API_KEY=659381931425234
       - CLOUDINARY_API_SECRET=ekW9f7cKaOJuPD7KjpamIkiSMeQ
-    # depends_on:
-    #   - mongodb
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_started
     volumes:
       - ./backend/chat:/app
       - /app/node_modules
@@ -145,8 +151,10 @@ services:
       - USER_SERVICE_URL=http://user-service:5000/api/v1
       - CHAT_SERVICE_URL=http://chat-service:5002/api/v1
     depends_on:
-      - user-service
-      - chat-service
+      user-service:
+        condition: service_started
+      chat-service:
+        condition: service_started
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -155,7 +163,7 @@ services:
       - chat-network
 
 volumes:
-  # mongodb_data:
+  mongodb_data:
   redis_data:
   rabbitmq_data:
 

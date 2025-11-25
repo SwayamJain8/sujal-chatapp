@@ -8,27 +8,40 @@ import cors from "cors";
 
 dotenv.config();
 
-connectDB();
-
-connectRabbitMQ();
-
 export const redisClient = createClient({
   url: process.env.REDIS_URL,
 });
 
-redisClient
-  .connect()
-  .then(() => console.log("Connected to Redis"))
-  .catch((err) => console.log("Error connecting to Redis", err));
+const startServer = async () => {
+  try {
+    // Connect to database
+    connectDB();
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+    // Connect to RabbitMQ (with retries)
+    await connectRabbitMQ();
 
-app.use("/api/v1", userRoutes);
+    // Connect to Redis
+    redisClient
+      .connect()
+      .then(() => console.log("Connected to Redis"))
+      .catch((err) => console.log("Error connecting to Redis", err));
 
-const PORT = process.env.PORT;
+    // Start Express server
+    const app = express();
+    app.use(express.json());
+    app.use(cors());
 
-app.listen(PORT, () => {
-  console.log(`User service is running on port ${PORT}`);
-});
+    app.use("/api/v1", userRoutes);
+
+    const PORT = process.env.PORT;
+
+    app.listen(PORT, () => {
+      console.log(`User service is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

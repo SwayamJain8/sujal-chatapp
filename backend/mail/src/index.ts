@@ -4,10 +4,21 @@ import { startSendOtpConsumer } from "./consumer.js";
 
 dotenv.config();
 
-startSendOtpConsumer();
+const startServer = async () => {
+  try {
+    // Connect to RabbitMQ and start consumer (with retries)
+    await startSendOtpConsumer();
 
-const app = express();
+    // Start Express server
+    const app = express();
 
-app.listen(process.env.PORT, () => {
-  console.log(`Mail service is running on port ${process.env.PORT}`);
-});
+    app.listen(process.env.PORT, () => {
+      console.log(`Mail service is running on port ${process.env.PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
