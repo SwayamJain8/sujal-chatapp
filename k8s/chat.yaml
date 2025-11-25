@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend-chat
-          image: swayamjain/chat-app-chat:latest
+          image: sujalsuthar/chat-app-chat:latest
           ports:
             - containerPort: 5002
           env:

@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend-user
-          image: swayamjain/chat-app-user:latest
+          image: sujalsuthar/chat-app-user:latest
           ports:
             - containerPort: 5000
           env:

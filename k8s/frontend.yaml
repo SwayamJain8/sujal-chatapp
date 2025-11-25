@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: swayamjain/chat-app-frontend:latest
+          image: sujalsuthar/chat-app-frontend:latest
           env:
             - name: NEXT_PUBLIC_USER_SERVICE_URL
               value: "/api/v1"

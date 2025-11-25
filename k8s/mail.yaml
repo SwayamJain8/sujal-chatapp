@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend-mail
-          image: swayamjain/chat-app-mail:latest
+          image: sujalsuthar/chat-app-mail:latest
           ports:
             - containerPort: 5001
           env:
