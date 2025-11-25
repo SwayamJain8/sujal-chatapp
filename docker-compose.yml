@@ -1,18 +1,18 @@
 services:
   # MongoDB Database
-  mongodb:
-    image: mongo:7-jammy
-    container_name: chat-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password123
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - chat-network
+  # mongodb:
+  #   image: mongo:7-jammy
+  #   container_name: chat-mongodb
+  #   restart: unless-stopped
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: password123
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   networks:
+  #     - chat-network
 
   # Redis Cache
   redis:
@@ -57,7 +57,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb://admin:password123@mongodb:27017/chatapp?authSource=admin
+      - MONGO_URI=mongodb+srv://swayam:swayam@cluster0.bsof52s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - PORT=5000
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_HOST=rabbitmq
@@ -65,8 +65,8 @@ services:
       - RABBITMQ_PASSWORD=password123
       - JWT_SECRET=god-is-good-god-is-great
     depends_on:
-      mongodb:
-        condition: service_started
+      # mongodb:
+      #   condition: service_started
       redis:
         condition: service_started
       rabbitmq:
@@ -113,14 +113,14 @@ services:
       - "5002:5002"
     environment:
       - PORT=5002
-      - MONGO_URI=mongodb://admin:password123@mongodb:27017/chatapp?authSource=admin
+      - MONGO_URI=mongodb+srv://swayam:swayam@cluster0.bsof52s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - JWT_SECRET=god-is-good-god-is-great
-      - USER_SERVICE_URL=http://localhost:5000
+      - USER_SERVICE_URL=http://user-service:5000/api/v1
       - CLOUDINARY_CLOUD_NAME=dnrfzgcrp
       - CLOUDINARY_API_KEY=659381931425234
       - CLOUDINARY_API_SECRET=ekW9f7cKaOJuPD7KjpamIkiSMeQ
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
     volumes:
       - ./backend/chat:/app
       - /app/node_modules
@@ -155,7 +155,7 @@ services:
       - chat-network
 
 volumes:
-  mongodb_data:
+  # mongodb_data:
   redis_data:
   rabbitmq_data:
 
